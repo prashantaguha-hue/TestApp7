@@ -9,6 +9,7 @@ import { ChatThread } from '../components/ChatThread'
 import type { ChatMessage } from '../components/ChatThread'
 import { useTypewriter } from '../hooks/useTypewriter'
 import { ConnectionSetup } from '../components/ConnectionSetup'
+import { ChatNavControls } from '../components/ChatNavControls'
 
 interface HomeProps {
   persona: PersonaId
@@ -180,140 +181,143 @@ export function Home({ persona }: HomeProps) {
   }
 
   return (
-    <div className={`mx-auto flex h-full max-w-3xl flex-col px-6 ${chatActive ? 'py-8' : 'py-16'}`}>
-      {!chatActive && (
-        <div className="mb-8 text-center">
-          <h1 className="text-[33px] font-bold leading-[1.15] tracking-tight text-slate-900">
-            How can{' '}
-            <span className="bg-gradient-to-br from-blue-600 to-violet-600 bg-clip-text italic text-transparent">
-              Hypersync
-            </span>{' '}
-            help you today?
-          </h1>
-          <p className="mt-2 text-[15px] text-slate-500">
-            Ask Hypersync to help you connect, configure, and manage your data.
-          </p>
-        </div>
-      )}
-
-      {chatActive && (
-        <ChatThread
-          messages={messages}
-          pendingAnswer={pendingAnswer}
-          typedAnswer={typedAnswer}
-          showAnswer={showAnswer}
-          onNewChat={handleNewChat}
-          onCta={handleCtaClick}
-        />
-      )}
-
-      <div
-        className={`w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-sm focus-within:border-violet-300 focus-within:ring-4 focus-within:ring-violet-100 ${chatActive ? 'mt-4 shrink-0' : ''}`}
-      >
-        <textarea
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask Hypersync anything, or describe what you want to do..."
-          rows={2}
-          className="w-full resize-none border-none bg-transparent px-1 py-1 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
-        />
-        <div className="flex items-center justify-between px-1 pt-1">
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-            title="Attach a file"
-          >
-            <Paperclip className="size-4" />
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={!query.trim() || isTyping || pendingAnswer !== null}
-            className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-sm transition-[filter] hover:brightness-110 disabled:bg-none disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
-            title="Send"
-          >
-            <ArrowUp className="size-4" strokeWidth={2.5} />
-          </button>
-        </div>
-      </div>
-
-      {!chatActive && (
-        <>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            {data.bubbles.map((bubble) => (
-              <button
-                key={bubble.prompt}
-                type="button"
-                title={bubble.prompt}
-                disabled={isTyping}
-                onClick={() => handleSuggestionClick(bubble.prompt, bubble.answer, undefined, bubble.cta)}
-                className="flex max-w-[280px] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm text-slate-600 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:pointer-events-none disabled:opacity-60"
-              >
-                <Sparkles className="size-3.5 shrink-0 text-violet-400" />
-                <span className="truncate">{bubbleLabel(bubble.prompt)}</span>
-              </button>
-            ))}
+    <div className="relative h-full">
+      <ChatNavControls onNewChat={handleNewChat} />
+      <div className={`mx-auto flex h-full max-w-3xl flex-col px-6 ${chatActive ? 'py-8' : 'py-16'}`}>
+        {!chatActive && (
+          <div className="mb-8 text-center">
+            <h1 className="text-[33px] font-bold leading-[1.15] tracking-tight text-slate-900">
+              How can{' '}
+              <span className="bg-gradient-to-br from-blue-600 to-violet-600 bg-clip-text italic text-transparent">
+                Hypersync
+              </span>{' '}
+              help you today?
+            </h1>
+            <p className="mt-2 text-[15px] text-slate-500">
+              Ask Hypersync to help you connect, configure, and manage your data.
+            </p>
           </div>
+        )}
 
-          <div className="mt-12 w-full">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                Suggested for you
-              </h2>
-              <div className="flex items-center gap-1.5">
+        {chatActive && (
+          <ChatThread
+            messages={messages}
+            pendingAnswer={pendingAnswer}
+            typedAnswer={typedAnswer}
+            showAnswer={showAnswer}
+            onNewChat={handleNewChat}
+            onCta={handleCtaClick}
+          />
+        )}
+
+        <div
+          className={`w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-sm focus-within:border-violet-300 focus-within:ring-4 focus-within:ring-violet-100 ${chatActive ? 'mt-4 shrink-0' : ''}`}
+        >
+          <textarea
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask Hypersync anything, or describe what you want to do..."
+            rows={2}
+            className="w-full resize-none border-none bg-transparent px-1 py-1 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
+          />
+          <div className="flex items-center justify-between px-1 pt-1">
+            <button
+              type="button"
+              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              title="Attach a file"
+            >
+              <Paperclip className="size-4" />
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!query.trim() || isTyping || pendingAnswer !== null}
+              className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-sm transition-[filter] hover:brightness-110 disabled:bg-none disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+              title="Send"
+            >
+              <ArrowUp className="size-4" strokeWidth={2.5} />
+            </button>
+          </div>
+        </div>
+
+        {!chatActive && (
+          <>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              {data.bubbles.map((bubble) => (
                 <button
+                  key={bubble.prompt}
                   type="button"
-                  onClick={() => scrollByCards(-1)}
-                  disabled={!canScrollLeft}
-                  className="flex size-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-white"
-                  title="Scroll left"
+                  title={bubble.prompt}
+                  disabled={isTyping}
+                  onClick={() => handleSuggestionClick(bubble.prompt, bubble.answer, undefined, bubble.cta)}
+                  className="flex max-w-[280px] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm text-slate-600 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:pointer-events-none disabled:opacity-60"
                 >
-                  <ChevronLeft className="size-4" />
+                  <Sparkles className="size-3.5 shrink-0 text-violet-400" />
+                  <span className="truncate">{bubbleLabel(bubble.prompt)}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => scrollByCards(1)}
-                  disabled={!canScrollRight}
-                  className="flex size-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-white"
-                  title="Scroll right"
-                >
-                  <ChevronRight className="size-4" />
-                </button>
+              ))}
+            </div>
+
+            <div className="mt-12 w-full">
+              <div className="mb-3 flex items-center justify-between">
+                <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Suggested for you
+                </h2>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => scrollByCards(-1)}
+                    disabled={!canScrollLeft}
+                    className="flex size-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-white"
+                    title="Scroll left"
+                  >
+                    <ChevronLeft className="size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollByCards(1)}
+                    disabled={!canScrollRight}
+                    className="flex size-6 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 disabled:hover:bg-white"
+                    title="Scroll right"
+                  >
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+              </div>
+              <div
+                ref={scrollRef}
+                onScroll={updateScrollState}
+                className="-mx-6 flex gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:thin]"
+              >
+                {data.cards.map((card) => {
+                  const Icon = iconMap[card.icon] ?? Sparkles
+                  return (
+                    <button
+                      key={card.title}
+                      type="button"
+                      disabled={isTyping}
+                      onClick={() =>
+                        card.flow
+                          ? handleFlowClick(card.title, card.flow === 'demo')
+                          : handleSuggestionClick(card.title, card.answer, card.stats, card.cta)
+                      }
+                      className="group flex w-[180px] shrink-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-violet-200 hover:bg-violet-50/60 disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      <div className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors">
+                        <Icon className="size-[18px]" />
+                      </div>
+                      <span className="text-sm font-medium leading-snug text-slate-700">
+                        {card.title}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
-            <div
-              ref={scrollRef}
-              onScroll={updateScrollState}
-              className="-mx-6 flex gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:thin]"
-            >
-              {data.cards.map((card) => {
-                const Icon = iconMap[card.icon] ?? Sparkles
-                return (
-                  <button
-                    key={card.title}
-                    type="button"
-                    disabled={isTyping}
-                    onClick={() =>
-                      card.flow
-                        ? handleFlowClick(card.title, card.flow === 'demo')
-                        : handleSuggestionClick(card.title, card.answer, card.stats, card.cta)
-                    }
-                    className="group flex w-[180px] shrink-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-violet-200 hover:bg-violet-50/60 disabled:pointer-events-none disabled:opacity-60"
-                  >
-                    <div className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors">
-                      <Icon className="size-[18px]" />
-                    </div>
-                    <span className="text-sm font-medium leading-snug text-slate-700">
-                      {card.title}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </div>
   )
 }

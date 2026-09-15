@@ -11,37 +11,32 @@ export interface CorporateOption {
   sub: string
 }
 
-export interface ModeOption {
+export interface ChoiceOption {
   id: string
   title: string
-  desc: string
-  recommended?: boolean
   enabled: boolean
 }
 
-export interface FrequencyOption {
+export interface TransferMethod {
   id: string
   title: string
   desc: string
-  recommended?: boolean
+  iconKey: 'hrms' | 'sftp' | 'csv' | 'api'
+  enabled: boolean
 }
 
-export interface FieldDef {
+export interface DataModelField {
   key: string
   label: string
   required?: boolean
+  /** Fields whose source name is ambiguous enough that a human should confirm the mapped target. */
+  needsMapping?: boolean
 }
 
-export interface FieldCategory {
-  name: string
-  fields: FieldDef[]
-}
-
-export interface AttentionField {
-  key: string
+export interface DataModelCategory {
+  id: string
   label: string
-  options: string[]
-  suggested: string
+  fields: DataModelField[]
 }
 
 export const PLATFORMS: Platform[] = [
@@ -62,165 +57,101 @@ export const CORPORATES: CorporateOption[] = [
   { id: 'umbrella', name: 'Umbrella Group', sub: 'Healthcare · 8,900 employees' },
 ]
 
-export const MODES: ModeOption[] = [
+export const SETUP_METHODS: ChoiceOption[] = [
+  { id: 'invite', title: 'Invite Corporate', enabled: false },
+  { id: 'self', title: 'Setup Myself', enabled: true },
+]
+
+export const CORPORATE_METHODS: ChoiceOption[] = [
+  { id: 'existing', title: 'Use Existing Corporate', enabled: true },
+  { id: 'new', title: 'Add New Corporate', enabled: true },
+]
+
+export const CONNECTION_CATEGORIES = ['HRMS Sync', 'Payroll Sync', 'Benefits Sync', 'Directory Sync']
+
+export const TRANSFER_METHODS: TransferMethod[] = [
   {
     id: 'hrms',
     title: 'HRMS Integration',
-    desc: 'Connect directly to your HR platform and sync employee data automatically over a secure API.',
-    recommended: true,
+    desc: 'Connect your HRMS for seamless data transfer.',
+    iconKey: 'hrms',
     enabled: true,
   },
-  { id: 'sftp', title: 'Flat File / SFTP', desc: 'Drop CSV or Excel files to a secure SFTP endpoint on a schedule.', enabled: false },
-  { id: 'api', title: 'Direct API Push', desc: 'Push employee records to Hypersync from your own systems via REST.', enabled: false },
-  { id: 'manual', title: 'Manual Upload', desc: 'Upload a spreadsheet whenever you need a one-off sync.', enabled: false },
+  { id: 'sftp', title: 'SFTP Transfer', desc: 'Upload files securely via SFTP.', iconKey: 'sftp', enabled: false },
+  { id: 'csv', title: 'Upload CSV', desc: 'Quickly upload your data using CSV files.', iconKey: 'csv', enabled: false },
+  { id: 'api', title: 'Push API', desc: 'Send data directly to your webhook URL.', iconKey: 'api', enabled: false },
 ]
 
-export const FREQUENCIES: FrequencyOption[] = [
-  { id: 'daily', title: 'Daily', desc: 'Sync once every day at a set time.', recommended: true },
-  { id: 'weekly', title: 'Weekly', desc: 'Sync once a week on a chosen day.' },
-  { id: 'monthly', title: 'Monthly', desc: 'Sync once a month on a chosen date.' },
-  { id: 'ondemand', title: 'On-demand', desc: 'No schedule — trigger each sync manually.' },
-]
-
-export const FIELD_CATEGORIES: FieldCategory[] = [
+export const DATA_MODEL_CATEGORIES: DataModelCategory[] = [
   {
-    name: 'Personal',
+    id: 'employee-details',
+    label: 'Employee Details Info',
     fields: [
-      { key: 'first_name', label: 'First Name', required: true },
-      { key: 'last_name', label: 'Last Name', required: true },
-      { key: 'gender', label: 'Gender' },
-      { key: 'date_of_birth', label: 'Date of Birth' },
-      { key: 'marital_status', label: 'Marital Status' },
-    ],
-  },
-  {
-    name: 'Contact',
-    fields: [
-      { key: 'work_email', label: 'Work Email', required: true },
+      { key: 'name', label: 'Name', required: true },
+      { key: 'employee_id', label: 'Employee ID', required: true },
+      { key: 'employee_status', label: 'Employee Status', required: true },
+      { key: 'date_of_joining', label: 'Date of Joining' },
       { key: 'personal_email', label: 'Personal Email' },
       { key: 'mobile_number', label: 'Mobile Number' },
-      { key: 'current_address', label: 'Current Address' },
+      { key: 'uan', label: 'UAN' },
     ],
   },
   {
-    name: 'Employment',
+    id: 'bank-details',
+    label: 'Bank Details',
     fields: [
-      { key: 'employee_id', label: 'Employee ID', required: true },
-      { key: 'date_joined', label: 'Date Joined' },
-      { key: 'designation', label: 'Designation' },
-      { key: 'department', label: 'Department' },
-      { key: 'reporting_manager', label: 'Reporting Manager' },
+      { key: 'bank_name', label: 'Bank Name' },
+      { key: 'account_number', label: 'Account Number' },
+    ],
+  },
+  {
+    id: 'dependent-details',
+    label: 'Dependent Details',
+    fields: [
+      { key: 'dependent_name', label: 'Dependent Name' },
+      { key: 'relationship', label: 'Relationship' },
+      { key: 'dependent_dob', label: 'Date of Birth' },
+    ],
+  },
+  {
+    id: 'salary-details',
+    label: 'Salary Details',
+    fields: [
+      { key: 'dearness_allowance', label: 'Dearness Allowance', needsMapping: true },
+      { key: 'house_rent_allowance', label: 'House Rent Allowance', needsMapping: true },
+      { key: 'flexi_basket_allowance', label: 'Flexi Basket Allowance', needsMapping: true },
     ],
   },
 ]
 
-export const ATTENTION_FIELDS: AttentionField[] = [
-  {
-    key: 'employee_type',
-    label: 'Employee Type',
-    options: ['Employment Type', 'Worker Category', 'Contract Type'],
-    suggested: 'Employment Type',
-  },
-  {
-    key: 'cost_center_code',
-    label: 'Cost Center Code',
-    options: ['Cost Center', 'Business Unit', 'Department Code'],
-    suggested: 'Cost Center',
-  },
-]
+export const REQUIRED_FIELDS = DATA_MODEL_CATEGORIES.flatMap((c) => c.fields).filter((f) => f.required)
 
-export const FILTER_FIELD_OPTIONS = ['Status', 'Department', 'Country', 'Employment Type', 'Location']
-export const FILTER_CONDITIONS = ['Include', 'Include containing', 'Exclude', 'Exclude containing']
-
-export interface FilterRule {
-  field: string
-  condition: string
-  value: string
-}
-
-export interface StepAssistant {
-  intro: string
-  questions: string[]
-}
-
-export const STEP_ASSISTANT: Record<string, StepAssistant> = {
-  corporate: {
-    intro:
-      "Let's start with the organisation this connection is for — pick an existing corporate, or add a new one. Everything you configure next applies only to this organisation.",
-    questions: ["What's a corporate here?", 'Can I add a new corporate?'],
-  },
-  mode: {
-    intro:
-      'Choose how employee data reaches Hypersync. HRMS Integration is the recommended, fully-automated option — other modes are coming soon.',
-    questions: ['What is HRMS Integration?', 'Which mode should I pick?'],
-  },
-  platform: {
-    intro: "Pick the HRMS platform you're connecting — I support the most common ones out of the box.",
-    questions: ['Is my HRMS supported?', "My HRMS isn't listed — now what?"],
-  },
-  host: {
-    intro: "Let's get your HRMS connection details ready. I'll help you understand anything you're unsure about.",
-    questions: ['What is an HRMS Host Name?', 'Where can I find my username?', 'How do I verify the connection?'],
-  },
-  fields: {
-    intro:
-      "I've preselected the employee fields most integrations use — required ones stay on. Toggle anything else on or off.",
-    questions: ['Why these fields?', 'Can I change this later?'],
-  },
-  configure: {
-    intro:
-      'Most fields map automatically. Resolve anything flagged for review, then decide which employees should sync using filters.',
-    questions: ['Why is this field not mapped?', 'How do filters work?', 'What does Match ALL vs ANY mean?'],
-  },
-  frequency: {
-    intro: 'Pick how often Hypersync refreshes employee data. Daily suits most teams; you can force a sync anytime.',
-    questions: ['Which frequency is best?', 'What does on-demand mean?'],
-  },
-  review: {
-    intro: "Everything's configured. Review the summary, then activate — I'll flag anything that needs attention.",
-    questions: ['What happens when I activate?', 'Can I edit after activating?'],
-  },
+export function toMappingKey(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
 }
 
 export function answerSetupQuestion(question: string): string {
   const t = question.toLowerCase()
-  if (/host ?name|host ?url|hostname/.test(t))
-    return 'The HRMS Host Name is the web address where your HRMS is hosted — the same URL you use to sign in (e.g. https://yourco.darwinbox.com).'
-  if (/user ?name|user id/.test(t))
-    return 'Use a service or admin account that can read employee data. Where possible, create a dedicated read-only integration account in your HRMS admin console.'
-  if (/password/.test(t))
-    return "Enter the password for the account above. It's encrypted at rest, used only to authenticate the connection, and never shown again after saving."
-  if (/verify|test connection/.test(t))
-    return "Fill in all three fields and press Verify connection. I'll run a secure test — success shows Connection verified, otherwise I'll tell you exactly what to fix."
-  if (/not mapped|un-?mapped|needs review|attention/.test(t))
-    return "A field is flagged when more than one Hypersync field could match, or the name is ambiguous. Pick the right target from its dropdown and it's resolved."
-  if (/change (a )?mapping|edit mapping|re-?map/.test(t))
-    return 'Yes — open the field\'s dropdown under Mapping & filters and choose a different target at any time, including auto-mapped ones.'
-  if (/how does auto|automatic mapping|auto-?map/.test(t))
-    return "I compare each HRMS field's name against the Hypersync schema and map the high-confidence matches automatically. Anything uncertain is flagged for you to confirm."
-  if (/match all|match any/.test(t))
-    return 'Match ALL means every filter rule must pass for a record to sync. Match ANY means passing just one rule is enough.'
-  if (/filter/.test(t))
-    return 'Filters decide who syncs. Add Include rules to keep only matching employees, or Exclude rules to drop them — combine as many rules as you need.'
-  if (/why these field|which field|add.*field|remove.*field|custom/.test(t))
-    return "I preselect the fields most integrations use; required ones (like Employee ID) stay on. Toggle any optional field on or off — you can change this later."
-  if (/self setup|invite/.test(t))
-    return 'Self setup lets you configure the organisation right now. Corporate invites are coming soon.'
-  if (/corporate|organis|organiz/.test(t))
-    return 'A corporate is the organisation this connection belongs to. Pick an existing one, or add a new one from this step.'
-  if (/hrms integration|which mode/.test(t))
-    return 'HRMS Integration connects directly to your HR platform over a secure API and syncs automatically — the recommended option. Other modes are coming soon.'
-  if (/supported|isn.?t listed|not listed/.test(t))
-    return "If your HRMS isn't listed, pick the closest match for now — our team can help set up a custom connector."
-  if (/on-?demand|force sync/.test(t))
-    return "On-demand means there's no fixed schedule — you trigger each sync yourself, whenever you need fresh data."
-  if (/frequency|how often|which frequency/.test(t))
-    return 'Daily suits most teams — current data without unnecessary load. Choose Weekly or Monthly for lower-change data, or On-demand to trigger syncs yourself.'
-  if (/activat/.test(t))
-    return 'Activating opens a live, encrypted connection to your HRMS, applies your mapping and filters, and schedules the first sync. You can edit or pause it afterwards.'
+  if (/company ?domain|domain/.test(t))
+    return "The Company Domain is the web address your HRMS is hosted at — the same one you use to sign in (e.g. yourco.bamboohr.com)."
+  if (/api ?(secret)? ?key|secret/.test(t))
+    return 'The API Secret Key comes from your HRMS admin console, usually under API or Integrations settings. It is encrypted at rest and never shown again after saving.'
+  if (/reference ?id/.test(t))
+    return "Reference ID is a unique identifier you use to track this connection in your own systems — any short code works."
+  if (/mapping|mapped|map field/.test(t))
+    return 'I map each selected field to a source key automatically. Use Edit mappings if you need to point a field at a different source name.'
+  if (/data model|required field|recommended field/.test(t))
+    return 'Required fields are always synced. Recommended fields are pre-selected based on common usage, but you can adjust them before continuing.'
+  if (/transfer method|sftp|csv|push api/.test(t))
+    return 'HRMS Integration is the only fully automated option right now — SFTP, CSV upload and Push API are coming soon.'
+  if (/corporate/.test(t))
+    return 'A corporate is the organisation this connection belongs to. Use an existing one, or add a new one from this step.'
   if (/secure|safe|encrypt|privacy/.test(t))
     return 'Credentials are encrypted at rest, used only to read the fields you approve, and Hypersync never writes back to your HRMS.'
-  if (/edit after|change later/.test(t))
-    return "Yes — every setting here (fields, mapping, filters, schedule) can be changed later from the connection's detail view."
-  return "Good question — configure this step in the centre panel and I'll flag anything that needs attention. Ask me about any field, credential, or setting and I'll explain it."
+  if (/activat|connect(ed)?$/.test(t))
+    return "Once you finish this setup, Hypersync opens a live, encrypted connection, applies your field mappings, and schedules the first sync."
+  return "Good question — keep working through the steps below and I'll flag anything that needs your attention. Ask me about any field or setting and I'll explain it."
 }

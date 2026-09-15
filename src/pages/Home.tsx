@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowUp, ChevronLeft, ChevronRight, Plus, Sparkles } from 'lucide-react'
+import { ArrowUp, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { AnswerCta, PersonaId, StatTile } from '../types/persona'
 import { personas } from '../data/personas'
-import { iconMap } from '../components/icon-map'
 import { ChatThread } from '../components/ChatThread'
 import type { ChatMessage } from '../components/ChatThread'
 import { useTypewriter } from '../hooks/useTypewriter'
 import { ConnectionSetup } from '../components/ConnectionSetup'
 import { ChatNavControls } from '../components/ChatNavControls'
+import { IllustrationDefs, SuggestionCard } from '../components/SuggestionCard'
 
 interface HomeProps {
   persona: PersonaId
@@ -194,6 +194,7 @@ export function Home({ persona }: HomeProps) {
 
   return (
     <div className="relative h-full">
+      <IllustrationDefs />
       {!chatActive && (
         <div
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
@@ -207,18 +208,9 @@ export function Home({ persona }: HomeProps) {
         />
       )}
       <ChatNavControls onNewChat={handleNewChat} />
-      <div className={`relative z-10 mx-auto flex h-full max-w-3xl flex-col px-6 ${chatActive ? 'py-8' : 'py-16'}`}>
-        {!chatActive && (
-          <div className="mb-8 text-center">
-            <h1 className="text-[33px] font-bold leading-[1.15] tracking-tight text-slate-900">
-              How can <span className="text-blue-600">HyperSync</span> help you today?
-            </h1>
-            <p className="mt-2 text-[15px] text-slate-500">
-              Ask Hyper Sync to help you connect, configure, and manage your data.
-            </p>
-          </div>
-        )}
-
+      <div
+        className={`relative z-10 mx-auto flex h-full flex-col px-6 ${chatActive ? 'max-w-3xl py-8' : 'max-w-5xl py-16'}`}
+      >
         {chatActive && (
           <ChatThread
             messages={messages}
@@ -229,7 +221,7 @@ export function Home({ persona }: HomeProps) {
           />
         )}
 
-        {chatActive ? (
+        {chatActive && (
           <div className="relative mt-4 flex shrink-0 items-center rounded-full border border-slate-200 bg-white py-3 pl-5 pr-14 shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-100">
             <input
               value={query}
@@ -248,45 +240,56 @@ export function Home({ persona }: HomeProps) {
               <ArrowUp className="size-4" strokeWidth={2.5} />
             </button>
           </div>
-        ) : (
-          <div className="w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-100">
-            <textarea
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask anything... e.g. what's connection?"
-              rows={3}
-              className="w-full resize-none border-none bg-transparent px-1 py-1 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
-            />
-            <div className="flex items-center justify-end px-1 pt-1">
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={!query.trim() || isTyping || pendingAnswer !== null}
-                className="flex size-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm transition-colors hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400"
-                title="Send"
-              >
-                <ArrowUp className="size-4" strokeWidth={2.5} />
-              </button>
-            </div>
-          </div>
         )}
 
         {!chatActive && (
           <>
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              {data.bubbles.map((bubble) => (
-                <button
-                  key={bubble.prompt}
-                  type="button"
-                  title={bubble.prompt}
-                  disabled={isTyping}
-                  onClick={() => handleSuggestionClick(bubble.prompt, bubble.answer, undefined, bubble.cta)}
-                  className="flex max-w-[280px] items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:pointer-events-none disabled:opacity-60"
-                >
-                  <span className="truncate">{bubbleLabel(bubble.prompt)}</span>
-                </button>
-              ))}
+            <div className="mx-auto w-full max-w-2xl">
+              <div className="mb-8 text-center">
+                <h1 className="text-[33px] font-bold leading-[1.15] tracking-tight text-slate-900">
+                  How can <span className="text-blue-600">HyperSync</span> help you today?
+                </h1>
+                <p className="mt-2 text-[15px] text-slate-500">
+                  Ask Hyper Sync to help you connect, configure, and manage your data.
+                </p>
+              </div>
+
+              <div className="w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-100">
+                <textarea
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ask anything... e.g. what's connection?"
+                  rows={3}
+                  className="w-full resize-none border-none bg-transparent px-1 py-1 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
+                />
+                <div className="flex items-center justify-end px-1 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={!query.trim() || isTyping || pendingAnswer !== null}
+                    className="flex size-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm transition-colors hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400"
+                    title="Send"
+                  >
+                    <ArrowUp className="size-4" strokeWidth={2.5} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                {data.bubbles.map((bubble) => (
+                  <button
+                    key={bubble.prompt}
+                    type="button"
+                    title={bubble.prompt}
+                    disabled={isTyping}
+                    onClick={() => handleSuggestionClick(bubble.prompt, bubble.answer, undefined, bubble.cta)}
+                    className="flex max-w-[280px] items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:pointer-events-none disabled:opacity-60"
+                  >
+                    <span className="truncate">{bubbleLabel(bubble.prompt)}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="mt-12 w-full">
@@ -320,32 +323,18 @@ export function Home({ persona }: HomeProps) {
                 onScroll={updateScrollState}
                 className="-mx-6 flex gap-3 overflow-x-auto px-6 pb-3 [scrollbar-width:thin]"
               >
-                {data.cards.map((card) => {
-                  const Icon = iconMap[card.icon] ?? Sparkles
-                  return (
-                    <button
-                      key={card.title}
-                      type="button"
-                      disabled={isTyping}
-                      onClick={() =>
-                        card.flow
-                          ? handleFlowClick(card.title, card.flow === 'demo')
-                          : handleSuggestionClick(card.title, card.answer, card.stats, card.cta)
-                      }
-                      className="group flex w-[200px] shrink-0 flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50/40 disabled:pointer-events-none disabled:opacity-60"
-                    >
-                      <div className="relative flex size-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-                        <Icon className="size-6" />
-                        <span className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
-                          <Plus className="size-3" strokeWidth={3} />
-                        </span>
-                      </div>
-                      <span className="text-sm font-semibold leading-snug text-slate-700">
-                        {card.title}
-                      </span>
-                    </button>
-                  )
-                })}
+                {data.cards.map((card) => (
+                  <SuggestionCard
+                    key={card.title}
+                    card={card}
+                    disabled={isTyping}
+                    onClick={() =>
+                      card.flow
+                        ? handleFlowClick(card.title, card.flow === 'demo')
+                        : handleSuggestionClick(card.title, card.answer, card.stats, card.cta)
+                    }
+                  />
+                ))}
               </div>
               {pageInfo.count > 1 && (
                 <div className="mt-3 flex items-center justify-center gap-1.5">

@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 import type { CardSuggestion } from '../types/persona'
 
 interface SuggestionCardProps {
@@ -183,7 +183,7 @@ function AnalyticsLevelSvg() {
   )
 }
 
-const ILLUSTRATIONS: Record<string, () => JSX.Element> = {
+const ILLUSTRATIONS: Record<string, () => ReactElement> = {
   PlugZap: DemoConnectionSvg,
   Plug: FirstConnectionSvg,
   Webhook: WebhookSvg,

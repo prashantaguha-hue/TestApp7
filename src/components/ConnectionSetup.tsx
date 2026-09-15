@@ -82,7 +82,7 @@ const TRANSFER_ICONS = {
 const INPUT_CLS =
   'w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500'
 const PRIMARY_BTN =
-  'rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-[filter] hover:brightness-110 disabled:bg-none disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none'
+  'rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none'
 
 export function ConnectionSetup({ demo, onClose, onStartReal }: ConnectionSetupProps) {
   const [step, setStep] = useState<StepId>('setup-method')
@@ -810,7 +810,8 @@ export function ConnectionSetup({ demo, onClose, onStartReal }: ConnectionSetupP
       </div>
 
       <div className="flex min-h-0 flex-1">
-        <div className="relative min-w-0 flex-1 overflow-y-auto bg-white">
+        <div className="relative flex min-w-0 flex-1 flex-col bg-white">
+        <div className="relative min-h-0 flex-1 overflow-y-auto">
           <ChatNavControls onNewChat={onClose} />
 
           <div className="mx-auto flex max-w-3xl flex-col gap-1 px-6 pb-10 pt-20">
@@ -859,35 +860,36 @@ export function ConnectionSetup({ demo, onClose, onStartReal }: ConnectionSetupP
         </div>
         </div>
 
+        <div className="flex flex-none items-center gap-2 border-t border-slate-200 bg-white px-6 py-4">
+          <input
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                handleChatSend()
+              }
+            }}
+            placeholder="Type your chat message here"
+            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
+          />
+          <button
+            type="button"
+            onClick={handleChatSend}
+            disabled={!chatInput.trim()}
+            className="flex size-10 flex-none items-center justify-center rounded-xl bg-blue-600 text-white transition-colors hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400"
+            title="Send"
+          >
+            <Send className="size-4" />
+          </button>
+        </div>
+        </div>
+
         <div className="hidden w-80 flex-none overflow-y-auto border-l border-slate-200 bg-white p-6 xl:block">
           <div className="sticky top-0">
             <PhaseTracker phases={PHASES} currentPhase={currentPhase} />
           </div>
         </div>
-      </div>
-
-      <div className="flex flex-none items-center gap-2 border-t border-slate-200 bg-white px-6 py-4">
-        <input
-          value={chatInput}
-          onChange={(e) => setChatInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              handleChatSend()
-            }
-          }}
-          placeholder="Type your chat message here"
-          className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
-        />
-        <button
-          type="button"
-          onClick={handleChatSend}
-          disabled={!chatInput.trim()}
-          className="flex size-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-violet-600 text-white transition-[filter] hover:brightness-110 disabled:bg-none disabled:bg-slate-200 disabled:text-slate-400"
-          title="Send"
-        >
-          <Send className="size-4" />
-        </button>
       </div>
     </div>
   )
@@ -938,7 +940,7 @@ function ThreadCard({ title, desc, children }: { title: string; desc?: string; c
 function UserPill({ label }: { label: string }) {
   return (
     <div className="mt-3 flex justify-end">
-      <span className="max-w-[80%] rounded-2xl rounded-tr-sm bg-gradient-to-br from-blue-600 to-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
+      <span className="max-w-[80%] rounded-2xl rounded-tr-sm bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
         {label}
       </span>
     </div>
@@ -1146,7 +1148,7 @@ function SuccessScreen({ demo, platformName, fieldCount, onClose, onStartReal }:
         <span
           className={
             'mb-5 flex size-16 items-center justify-center rounded-2xl text-white shadow-lg ' +
-            (demo ? 'bg-gradient-to-br from-blue-600 to-violet-600' : 'bg-gradient-to-br from-emerald-500 to-teal-500')
+            (demo ? 'bg-gradient-to-br from-blue-500 to-blue-600' : 'bg-gradient-to-br from-emerald-500 to-teal-500')
           }
         >
           <Check className="size-8" />
@@ -1177,7 +1179,7 @@ function SuccessScreen({ demo, platformName, fieldCount, onClose, onStartReal }:
             <button
               type="button"
               onClick={onStartReal}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-[filter] hover:brightness-110"
+              className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
             >
               <Plus className="size-4" /> Create a real connection
             </button>

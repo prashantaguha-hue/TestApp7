@@ -15,7 +15,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       }`}
     >
       <div className="h-14 flex items-center gap-2 px-4 border-b border-slate-200">
-        <div className="size-7 rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 text-white flex items-center justify-center font-semibold text-sm shrink-0 shadow-sm">
+        <div className="size-7 rounded-lg bg-blue-600 text-white flex items-center justify-center font-semibold text-sm shrink-0 shadow-sm">
           H
         </div>
         {!collapsed && (
@@ -37,7 +37,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               className={({ isActive }) =>
                 `flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors ${
                   isActive
-                    ? 'bg-violet-50 text-violet-700'
+                    ? 'bg-blue-50 text-blue-700'
                     : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                 } ${collapsed ? 'justify-center' : ''}`
               }

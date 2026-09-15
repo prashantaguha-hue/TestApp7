@@ -98,7 +98,7 @@ export function Connections() {
       <p className="text-sm text-slate-500">Hypersync enables effortless, real-time standardized client data retrieval.</p>
 
       <div className="mt-6 grid grid-cols-4 gap-4">
-        <StatCard label="Total Connections" value={CONNECTION_STATS.total} icon={CheckCircle2} tone="bg-violet-50 text-violet-600" />
+        <StatCard label="Total Connections" value={CONNECTION_STATS.total} icon={CheckCircle2} tone="bg-blue-50 text-blue-600" />
         <StatCard label="Active Connections" value={CONNECTION_STATS.active} icon={CheckCircle2} tone="bg-emerald-50 text-emerald-600" />
         <StatCard label="Pending Connections" value={CONNECTION_STATS.pending} icon={Hourglass} tone="bg-amber-50 text-amber-600" />
         <StatCard label="Terminated Connections" value={CONNECTION_STATS.terminated} icon={Trash2} tone="bg-slate-100 text-slate-500" />
@@ -135,7 +135,7 @@ export function Connections() {
             setSetup(true)
             setSetupKey((k) => k + 1)
           }}
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-[filter] hover:brightness-110"
+          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700"
         >
           <Plus className="size-4" /> Add New Connection
         </button>
@@ -174,7 +174,7 @@ export function Connections() {
                       <button
                         type="button"
                         onClick={() => copyId(c.id)}
-                        className="rounded p-1 text-slate-400 hover:bg-violet-50 hover:text-violet-600"
+                        className="rounded p-1 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
                         title="Copy"
                       >
                         <Copy className="size-3" />
@@ -206,7 +206,7 @@ export function Connections() {
                     <button
                       type="button"
                       onClick={() => setOpenMenuId(openMenuId === c.id ? null : c.id)}
-                      className="flex size-7 items-center justify-center rounded-lg text-slate-400 hover:bg-violet-50 hover:text-violet-600"
+                      className="flex size-7 items-center justify-center rounded-lg text-slate-400 hover:bg-blue-50 hover:text-blue-600"
                     >
                       <MoreHorizontal className="size-4" />
                     </button>
@@ -264,7 +264,7 @@ function Checkbox({ checked, onClick }: { checked: boolean; onClick: () => void 
       type="button"
       onClick={onClick}
       className={`flex size-[17px] items-center justify-center rounded border-2 ${
-        checked ? 'border-violet-600 bg-violet-600 text-white' : 'border-slate-300 bg-white'
+        checked ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-300 bg-white'
       }`}
     >
       {checked && <CheckCircle2 className="size-3" strokeWidth={3} />}

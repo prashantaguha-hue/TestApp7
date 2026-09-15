@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowUp, ChevronLeft, ChevronRight, Paperclip, Sparkles } from 'lucide-react'
+import { ArrowUp, ChevronLeft, ChevronRight, Plus, Sparkles } from 'lucide-react'
 import type { AnswerCta, PersonaId, StatTile } from '../types/persona'
 import { personas } from '../data/personas'
 import { iconMap } from '../components/icon-map'
@@ -23,6 +23,10 @@ function bubbleLabel(text: string) {
   return match ? match[1] : text
 }
 
+function formatTime() {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+}
+
 export function Home({ persona }: HomeProps) {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
@@ -30,6 +34,7 @@ export function Home({ persona }: HomeProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
+  const [pageInfo, setPageInfo] = useState({ count: 1, index: 0 })
   const [isTyping, setIsTyping] = useState(false)
   const typingIntervalRef = useRef<number | null>(null)
 
@@ -79,7 +84,10 @@ export function Home({ persona }: HomeProps) {
   useEffect(() => {
     if (pendingAnswer !== null && showAnswer && typedAnswer === pendingAnswer) {
       const timer = window.setTimeout(() => {
-        setMessages((m) => [...m, { role: 'assistant', content: pendingAnswer, stats: pendingStats, cta: pendingCta }])
+        setMessages((m) => [
+          ...m,
+          { role: 'assistant', content: pendingAnswer, stats: pendingStats, cta: pendingCta, time: formatTime() },
+        ])
         setPendingAnswer(null)
         setPendingStats(undefined)
         setPendingCta(undefined)
@@ -94,7 +102,7 @@ export function Home({ persona }: HomeProps) {
       window.setTimeout(() => {
         setQuery('')
         setChatActive(true)
-        setMessages([{ role: 'user', content: promptText }])
+        setMessages([{ role: 'user', content: promptText, time: formatTime() }])
         setPendingAnswer(answer)
         setPendingStats(stats)
         setPendingCta(cta)
@@ -136,6 +144,9 @@ export function Home({ persona }: HomeProps) {
     if (!el) return
     setCanScrollLeft(el.scrollLeft > 4)
     setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+    const count = Math.max(1, Math.round(el.scrollWidth / el.clientWidth))
+    const index = Math.min(count - 1, Math.round(el.scrollLeft / el.clientWidth))
+    setPageInfo({ count, index })
   }
 
   useEffect(() => {
@@ -150,14 +161,15 @@ export function Home({ persona }: HomeProps) {
     const text = query.trim()
     if (!text || pendingAnswer !== null) return
     setQuery('')
-    setMessages((m) => (chatActive ? [...m, { role: 'user', content: text }] : [{ role: 'user', content: text }]))
+    const userMessage: ChatMessage = { role: 'user', content: text, time: formatTime() }
+    setMessages((m) => (chatActive ? [...m, userMessage] : [userMessage]))
     setChatActive(true)
     setPendingAnswer(FALLBACK_ANSWER)
     setPendingStats(undefined)
     setPendingCta(undefined)
   }
 
-  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+  function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement | HTMLInputElement>) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSubmit()
@@ -182,19 +194,27 @@ export function Home({ persona }: HomeProps) {
 
   return (
     <div className="relative h-full">
+      {!chatActive && (
+        <div
+          className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          style={{
+            backgroundImage:
+              'radial-gradient(ellipse 70% 55% at 50% 0%, rgba(59,130,246,0.09), rgba(59,130,246,0) 70%), linear-gradient(to right, rgba(100,116,139,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(100,116,139,0.05) 1px, transparent 1px)',
+            backgroundSize: 'auto, 48px 48px, 48px 48px',
+            maskImage: 'linear-gradient(to bottom, black 0%, black 55%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 55%, transparent 100%)',
+          }}
+        />
+      )}
       <ChatNavControls onNewChat={handleNewChat} />
-      <div className={`mx-auto flex h-full max-w-3xl flex-col px-6 ${chatActive ? 'py-8' : 'py-16'}`}>
+      <div className={`relative z-10 mx-auto flex h-full max-w-3xl flex-col px-6 ${chatActive ? 'py-8' : 'py-16'}`}>
         {!chatActive && (
           <div className="mb-8 text-center">
             <h1 className="text-[33px] font-bold leading-[1.15] tracking-tight text-slate-900">
-              How can{' '}
-              <span className="bg-gradient-to-br from-blue-600 to-violet-600 bg-clip-text italic text-transparent">
-                Hypersync
-              </span>{' '}
-              help you today?
+              How can <span className="text-blue-600">HyperSync</span> help you today?
             </h1>
             <p className="mt-2 text-[15px] text-slate-500">
-              Ask Hypersync to help you connect, configure, and manage your data.
+              Ask Hyper Sync to help you connect, configure, and manage your data.
             </p>
           </div>
         )}
@@ -205,41 +225,52 @@ export function Home({ persona }: HomeProps) {
             pendingAnswer={pendingAnswer}
             typedAnswer={typedAnswer}
             showAnswer={showAnswer}
-            onNewChat={handleNewChat}
             onCta={handleCtaClick}
           />
         )}
 
-        <div
-          className={`w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-sm focus-within:border-violet-300 focus-within:ring-4 focus-within:ring-violet-100 ${chatActive ? 'mt-4 shrink-0' : ''}`}
-        >
-          <textarea
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask Hypersync anything, or describe what you want to do..."
-            rows={2}
-            className="w-full resize-none border-none bg-transparent px-1 py-1 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
-          />
-          <div className="flex items-center justify-between px-1 pt-1">
-            <button
-              type="button"
-              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
-              title="Attach a file"
-            >
-              <Paperclip className="size-4" />
-            </button>
+        {chatActive ? (
+          <div className="relative mt-4 flex shrink-0 items-center rounded-full border border-slate-200 bg-white py-3 pl-5 pr-14 shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-100">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your chat message here"
+              className="w-full border-none bg-transparent text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
+            />
             <button
               type="button"
               onClick={handleSubmit}
               disabled={!query.trim() || isTyping || pendingAnswer !== null}
-              className="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 text-white shadow-sm transition-[filter] hover:brightness-110 disabled:bg-none disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+              className="absolute right-1.5 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm transition-colors hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400"
               title="Send"
             >
               <ArrowUp className="size-4" strokeWidth={2.5} />
             </button>
           </div>
-        </div>
+        ) : (
+          <div className="w-full rounded-2xl border border-slate-200 bg-white p-3 shadow-sm focus-within:border-blue-300 focus-within:ring-4 focus-within:ring-blue-100">
+            <textarea
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask anything... e.g. what's connection?"
+              rows={3}
+              className="w-full resize-none border-none bg-transparent px-1 py-1 text-[15px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
+            />
+            <div className="flex items-center justify-end px-1 pt-1">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!query.trim() || isTyping || pendingAnswer !== null}
+                className="flex size-9 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm transition-colors hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400"
+                title="Send"
+              >
+                <ArrowUp className="size-4" strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+        )}
 
         {!chatActive && (
           <>
@@ -251,9 +282,8 @@ export function Home({ persona }: HomeProps) {
                   title={bubble.prompt}
                   disabled={isTyping}
                   onClick={() => handleSuggestionClick(bubble.prompt, bubble.answer, undefined, bubble.cta)}
-                  className="flex max-w-[280px] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-sm text-slate-600 transition-colors hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700 disabled:pointer-events-none disabled:opacity-60"
+                  className="flex max-w-[280px] items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-600 transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:pointer-events-none disabled:opacity-60"
                 >
-                  <Sparkles className="size-3.5 shrink-0 text-violet-400" />
                   <span className="truncate">{bubbleLabel(bubble.prompt)}</span>
                 </button>
               ))}
@@ -302,18 +332,31 @@ export function Home({ persona }: HomeProps) {
                           ? handleFlowClick(card.title, card.flow === 'demo')
                           : handleSuggestionClick(card.title, card.answer, card.stats, card.cta)
                       }
-                      className="group flex w-[180px] shrink-0 flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 text-left transition-colors hover:border-violet-200 hover:bg-violet-50/60 disabled:pointer-events-none disabled:opacity-60"
+                      className="group flex w-[200px] shrink-0 flex-col items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50/40 disabled:pointer-events-none disabled:opacity-60"
                     >
-                      <div className="flex size-9 items-center justify-center rounded-lg bg-slate-100 text-slate-500 group-hover:bg-violet-100 group-hover:text-violet-600 transition-colors">
-                        <Icon className="size-[18px]" />
+                      <div className="relative flex size-16 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                        <Icon className="size-6" />
+                        <span className="absolute -right-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full bg-blue-600 text-white shadow-sm">
+                          <Plus className="size-3" strokeWidth={3} />
+                        </span>
                       </div>
-                      <span className="text-sm font-medium leading-snug text-slate-700">
+                      <span className="text-sm font-semibold leading-snug text-slate-700">
                         {card.title}
                       </span>
                     </button>
                   )
                 })}
               </div>
+              {pageInfo.count > 1 && (
+                <div className="mt-3 flex items-center justify-center gap-1.5">
+                  {Array.from({ length: pageInfo.count }).map((_, i) => (
+                    <span
+                      key={i}
+                      className={`h-1.5 rounded-full transition-all ${i === pageInfo.index ? 'w-4 bg-blue-600' : 'w-1.5 bg-slate-200'}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}

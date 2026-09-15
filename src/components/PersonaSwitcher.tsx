@@ -53,7 +53,7 @@ export function PersonaSwitcher({ value, onChange }: PersonaSwitcherProps) {
                   setOpen(false)
                 }}
                 className={`flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
-                  active ? 'bg-violet-50 text-violet-700' : 'text-slate-700 hover:bg-slate-100'
+                  active ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <div className="flex-1 min-w-0">
